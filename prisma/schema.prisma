@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  createdAt DateTime  @default(now())
+  progress  Progress[]
+
+  @@map("users")
+}
+
+model Question {
+  id             Int       @id
+  questionText   String
+  optionA        String
+  optionB        String
+  optionC        String
+  optionD        String
+  correctAnswer  String    // A, B, C, or D
+  mediaType      String?   // image, video, null
+  mediaUrl       String?   // /media/13.jpg
+  progress       Progress[]
+
+  @@map("questions")
+}
+
+model Progress {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  questionId     Int
+  selectedAnswer String
+  isCorrect      Boolean
+  answeredAt     DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question       Question  @relation(fields: [questionId], references: [id])
+
+  @@unique([userId, questionId])
+  @@map("progress")
+}
